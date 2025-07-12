@@ -55,3 +55,11 @@ def delete_api(name: str):
         cursor = con.cursor()
         cursor.execute("DELETE FROM apis WHERE name IN (?)", (name,))
         con.commit()
+
+def get_all_users_number():
+    with sqlite3.connect("database.db") as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute("SELECT * FROM users")
+        data = cur.fetchall()
+        return [dict(row)['user_id'] for row in data]

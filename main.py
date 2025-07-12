@@ -3,7 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiogram.client.default import DefaultBotProperties
 from keyboards import apis_button, admin_panel_button
-from database import add_api, add_user, get_callback_names, get_api, get_all_apis, delete_api
+from database import add_api, add_user, get_callback_names, get_api, get_all_apis, delete_api, get_all_users_number
 import logging
 import asyncio
 
@@ -22,6 +22,17 @@ async def admin_panel(message: types.Message):
         await message.answer(f"Admin panel", reply_markup=admin_panel_button())
     else:
         await message.answer("/admin")
+
+@dp.callback_query(F.data.in_(["api", "see_users"]))
+async def send_users_number(call: types.CallbackQuery):
+    if call.from_user.id == ADMIN_ID:
+        if call.data == "see_users":
+            await call.message.answer(f"Foydalanuvchilar soni: {len(get_all_users_number())}")
+        elif call.data == "api":
+            await call.message.answer(f"Ishlatish: {html.code("/add_api")} api_name, api_url, callback_name, sarlavha, narx")
+        await call.answer()
+    else:
+        print("NOT EQUAL")
     
 @dp.message(Command("delete"))
 async def delete_the_api(message: types.Message, command: CommandObject):
@@ -47,11 +58,12 @@ async def add_new_api(message: types.Message, command: CommandObject):
         else:
             await message.answer(f"Ishlatish: {html.code("/add_api")} api_name, api_url, callback_name, sarlavha, narx")
 
-@dp.callback_query(F.data.in_(get_callback_names()))
+@dp.callback_query()
 async def send_info(call: types.CallbackQuery):
-    data = get_api(call.data)
-    await call.message.answer(f"{html.bold(data['name'])}\n\n🔗{data['url']}\n💸Narxi: {data['price']}\n\n{data['caption']}")
-    await call.answer(cache_time=1)
+    if call.data in get_callback_names():
+        data = get_api(call.data)
+        await call.message.answer(f"{html.bold(data['name'])}\n\n🔗{data['url']}\n💸Narxi: {data['price']}\n\n{data['caption']}")
+        await call.answer(cache_time=1)
 
 @dp.message()
 async def echo(message: types.Message):

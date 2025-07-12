@@ -13,7 +13,7 @@ def apis_button(needs: list):
 def admin_panel_button():
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="API qo'shish", callback_data="add_api")],
+            [InlineKeyboardButton(text="API qo'shish", callback_data="api")],
             [InlineKeyboardButton(text="Foydalanuvchilar sonini ko'rish", callback_data="see_users")]
         ]
     )
