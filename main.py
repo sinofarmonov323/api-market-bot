@@ -3,7 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiogram.client.default import DefaultBotProperties
 from keyboards import apis_button, admin_panel_button
-from database import add_api, add_user, get_callback_names, get_api, get_all_apis, delete_api, get_all_users_number
+from database import add_api, add_user, get_callback_names, get_api, get_all_apis, delete_api, get_all_users_number, update_api_by_callback_name
 import logging
 import asyncio
 
@@ -37,12 +37,36 @@ async def send_users_number(call: types.CallbackQuery):
         await call.answer()
     else:
         print("NOT EQUAL")
-    
+
+@dp.message(Command("sm"))
+async def send_message_to_all_users(message: types.Message, bot: Bot, command: CommandObject):
+    args = command.args
+    if args != None:
+        for id in get_all_users_number():
+            await bot.send_message(id, args)
+    else:
+        await message.answer(f"ishlatish: {html.code("/sm")} xabaringiz\n\nhtml commands:\n\tb, s, i, u, a")
+
+@dp.message(Command("update"))
+async def update_api(message: types.Message, command: CommandObject):
+    if message.from_user.id == ADMIN_ID:
+        if command.args != None:
+            args = command.args.replace(", ", ",").split(",")
+            if len(args) >=6:
+                name, new_name, url, callback_name, caption, price = args[0], args[1], args[2], args[3], args[4], args[5] 
+                update_api_by_callback_name(name, new_name, url, callback_name, caption, price)
+                await message.answer("API Yangilandi✅")
+            else:
+                await message.answer("nimanidir xato qildingiz")
+                await message.answer(f"ishlatish: {html.code("/update")} name, new_name, url, callback_name, caption, price")
+        else:
+            await message.answer(f"ishlatish: {html.code("/update")} name, new_name, url, callback_name, caption, price")
+
 @dp.message(Command("delete"))
 async def delete_the_api(message: types.Message, command: CommandObject):
     try:
         delete_api(command.args)
-        await message.answer("API o'chirildi")
+        await message.answer("API o'chirildi✅")
     except Exception as e:
         print("API O'chirilmadi: ", e)
         await message.answer("Bunday API topilmadi")
@@ -55,7 +79,7 @@ async def add_new_api(message: types.Message, command: CommandObject):
             if len(args) >= 5:
                 title, url, callback_name, caption, price = args[0], args[1], args[2], args[3], args[4]
                 add_api(title, url, callback_name, caption, price)
-                await message.answer("API qo'shildi")
+                await message.answer("API qo'shildi✅")
             else:
                 await message.answer("nimanidir xato qildingiz")
                 await message.answer(f"Ishlatish: {html.code("/add_api")} api_name, api_url, callback_name, sarlavha, narx")

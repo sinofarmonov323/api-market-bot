@@ -35,6 +35,11 @@ def get_callback_names() -> list:
         rows = cur.fetchall()
         return [row["callback_name"] for row in rows]
 
+def update_api_by_callback_name(name: str, new_name: str, url: str, callback_name: str, caption: str, price: str):
+    with sqlite3.connect("database.db") as con:
+        cur = con.cursor()
+        cur.execute("UPDATE apis SET name = ?, url = ?, callback_name = ?, caption = ?, price = ? WHERE name = ?", (new_name, url, callback_name, caption, price, name))
+
 def get_api(callback_name: str):
     with sqlite3.connect("database.db") as con:
         con.row_factory = sqlite3.Row
