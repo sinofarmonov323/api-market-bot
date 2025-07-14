@@ -1,12 +1,13 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def apis_button(needs: list):
     if needs != []:
-        return InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text=need['name'], callback_data=need['callback_name'])] for need in needs
-            ]
-        )
+        builder = InlineKeyboardBuilder()
+        for need in needs:
+            builder.add(InlineKeyboardButton(text=need['name'], callback_data=need['callback_name']))
+        builder.adjust(2)
+        return builder.as_markup()
     else:
         return None
 
